@@ -33,7 +33,7 @@ public class RunServer {
 		server.registerInterceptor(new LoggingInterceptor());
 
 		// On day 2 we will register an authorization interceptor here
-		server.registerInterceptor();
+		// server.registerInterceptor();
 
 		/*
 		 * The following is all boilerplate in order to start the HAPI FHIR
@@ -47,6 +47,7 @@ public class RunServer {
 		ourListenerServer.setHandler(proxyHandler);
 		ourListenerServer.start();
 
-		ourLog.info("Server is now running Started! Base URL is http://localhost:" + JettyUtil.getPortForStartedServer(ourListenerServer));
+		ourLog.info("Server is now running Started! Base URL is http://localhost:"
+				+ JettyUtil.getPortForStartedServer(ourListenerServer));
 	}
 }

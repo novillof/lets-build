@@ -1,10 +1,13 @@
 package ca.uhn.fhir.letsbuild.upload;
 
 import ca.uhn.fhir.context.FhirContext;
+import ca.uhn.fhir.rest.client.api.IGenericClient;
+
 import com.google.common.base.Charsets;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
+import org.hl7.fhir.r4.model.Patient;
 import org.hl7.fhir.r4.model.Observation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +24,7 @@ public class CsvDataUploader {
     public static void main(String[] theArgs) throws Exception {
 
         FhirContext ctx = FhirContext.forR4Cached();
+        IGenericClient client = ctx.newRestfulGenericClient("http://hapi.fhir.org/baseR4");
 
         // Open the CSV file for reading
         try (InputStream inputStream = new FileInputStream("src/main/resources/sample-data.csv")) {
@@ -55,25 +59,36 @@ public class CsvDataUploader {
                 // Patient Gender - Values will be "M" or "F"
                 String patientGender = nextRecord.get("PATIENT_GENDER");
 
+                // Creamos el recurso Paciente
+                Patient p = new Patient();
+                p.setId(patientId);
+                p.addName().setFamily(patientFamilyName)
+                        .addGiven(patientGivenName);
+
+                client
+                        .update()
+                        .resource(p)
+                        .execute();
+
                 // White blood cell count - This corresponds to LOINC code:
-                // Code:        6690-2
-                // Display:     Leukocytes [#/volume] in Blood by Automated count
+                // Code: 6690-2
+                // Display: Leukocytes [#/volume] in Blood by Automated count
                 // Unit System: http://unitsofmeasure.org
-                // Unit Code:   10*3/uL
+                // Unit Code: 10*3/uL
                 String rbc = nextRecord.get("RBC");
 
                 // White blood cell count - This corresponds to LOINC code:
-                // Code:        789-8
-                // Display:     Erythrocytes [#/volume] in Blood by Automated count
+                // Code: 789-8
+                // Display: Erythrocytes [#/volume] in Blood by Automated count
                 // Unit System: http://unitsofmeasure.org
-                // Unit Code:   10*6/uL
+                // Unit Code: 10*6/uL
                 String wbc = nextRecord.get("WBC");
 
                 // Hemoglobin
-                // Code:        718-7
-                // Display:     Hemoglobin [Mass/volume] in Blood
+                // Code: 718-7
+                // Display: Hemoglobin [Mass/volume] in Blood
                 // Unit System: http://unitsofmeasure.org
-                // Unit Code:   g/dL
+                // Unit Code: g/dL
                 String hb = nextRecord.get("HB");
 
                 // Day 1 Exercise:

@@ -1,22 +1,24 @@
 # HAPI-FHIR Let's Build
 
+# Video tutorial: https://www.youtube.com/watch?v=tbmm706hYAQ&list=PLKuZNI94tzWZAlzI-7nQPj9sKAf6xzA0l&index=95
+
 # Precursors
 
-* Check this project out to your local hard drive.
-* Open it in an IDE
-* Have the following tools installed:
-   * [Java JDK Version 17.x](https://aws.amazon.com/corretto/) (This is the recommended version but Java 11 and above should also work)
-   * [Apache Maven](https://maven.apache.org/)
+- Check this project out to your local hard drive.
+- Open it in an IDE
+- Have the following tools installed:
+  - [Java JDK Version 17.x](https://aws.amazon.com/corretto/) (This is the recommended version but Java 11 and above should also work)
+  - [Apache Maven](https://maven.apache.org/)
 
 # Day 1 - Build a FHIR Data Mapper
 
-**Rationale:** When adopting FHIR, a common scenario is needing to convert your existing data into the FHIR model. This can be a challenging first step, but if you approach it systematically it can be easy. 
+**Rationale:** When adopting FHIR, a common scenario is needing to convert your existing data into the FHIR model. This can be a challenging first step, but if you approach it systematically it can be easy.
 
-**Exercise:** For this exercise, we will be building a mapper that converts existing data a CSV file into FHIR Patient and Observation resources. 
+**Exercise:** For this exercise, we will be building a mapper that converts existing data a CSV file into FHIR Patient and Observation resources.
 
 We'll be using a sample data file from the CDC NHANES (National Health and Nutrition Examination Study) publicly available sample data set. The format of the data set is described at [this link](https://wwwn.cdc.gov/Nchs/Nhanes/2017-2018/CBC_J.htm) but we have reworked the format a bit to add fake patient identities and timestamps to the data.
 
-The input CSV file can be found here: https://github.com/hapifhir/lets-build/blob/main/src/main/resources/sample-data.csv 
+The input CSV file can be found here: https://github.com/hapifhir/lets-build/blob/main/src/main/resources/sample-data.csv
 
 ## Approach
 
@@ -29,46 +31,46 @@ SEQN   , TIMESTAMP               , PATIENT_ID, PATIENT_FAMILYNAME, PATIENT_GIVEN
 
 Note the columns:
 
-* SEQN: This is a unique identifier for the test
-* TIMESTAMP: This is the timestamp for the test
-* Patient detail columns (note that the patients repeat so you will want to ):
-   * PATIENT_ID: This is the ID of the patient
-   * PATIENT_FAMILYNAME: This is the family (last) name of the patient
-   * PATIENT_GIVENNAME: This is the given (first) name of the patient
-   * PATIENT_GENDER: This is the gender of the patient
-* Test result columns (each of these will be a separate Observation resource):
-   * WBC: "White Blood Cell Count": This is a count of the number of white blood cells in your blood (These cells deliver oxygen)
-   * RBC: "Red Blood Cell Count": This is a count of the number of red blood cells in your blood (These cells are an important part of the immune system)
-   * HB: "Hemoglobin": This a measurement of the amount of hemoglobin protein in your blood (this iron-rich protein carries oxygen, among other things)
+- SEQN: This is a unique identifier for the test
+- TIMESTAMP: This is the timestamp for the test
+- Patient detail columns (note that the patients repeat so you will want to ):
+  - PATIENT_ID: This is the ID of the patient
+  - PATIENT_FAMILYNAME: This is the family (last) name of the patient
+  - PATIENT_GIVENNAME: This is the given (first) name of the patient
+  - PATIENT_GENDER: This is the gender of the patient
+- Test result columns (each of these will be a separate Observation resource):
+  - WBC: "White Blood Cell Count": This is a count of the number of white blood cells in your blood (These cells deliver oxygen)
+  - RBC: "Red Blood Cell Count": This is a count of the number of red blood cells in your blood (These cells are an important part of the immune system)
+  - HB: "Hemoglobin": This a measurement of the amount of hemoglobin protein in your blood (this iron-rich protein carries oxygen, among other things)
 
 ## Writing a Mapper
 
-* Open the following class: [ca.uhn.fhir.letsbuild.upload.CsvDataUploader](https://github.com/hapifhir/lets-build/blob/main/src/main/java/ca/uhn/fhir/letsbuild/upload/CsvDataUploader.java).
+- Open the following class: [ca.uhn.fhir.letsbuild.upload.CsvDataUploader](https://github.com/hapifhir/lets-build/blob/main/src/main/java/ca/uhn/fhir/letsbuild/upload/CsvDataUploader.java).
 
-* Notice how this class has a basic skeleton that reads in a CSV file.
+- Notice how this class has a basic skeleton that reads in a CSV file.
 
 ## Hints:
 
-* Don't optimize at first! There are lots of ways this code can be made efficient, but it's better to start by getting it working, then worry about performance later.
+- Don't optimize at first! There are lots of ways this code can be made efficient, but it's better to start by getting it working, then worry about performance later.
 
-* You can use the PATIENT_ID column as the resource ID for the Patient resource. Using a client-assigned ID for your resources makes the outcome predictable, and means that you can re-run your uploader as many times as you like without constantly creating new datasets. 
+- You can use the PATIENT_ID column as the resource ID for the Patient resource. Using a client-assigned ID for your resources makes the outcome predictable, and means that you can re-run your uploader as many times as you like without constantly creating new datasets.
 
-* You can use the SEQN column as the resource ID for the Observation resources, but you will need to append something to it since there are 3 Observations per row.
+- You can use the SEQN column as the resource ID for the Observation resources, but you will need to append something to it since there are 3 Observations per row.
 
 # Hour 2 - Upload the Resources to a FHIR Server
 
-* Create a FHIR Client:
+- Create a FHIR Client:
 
-  * Using the instructions here: https://hapifhir.io/hapi-fhir/docs/client/generic_client.html
-  * Use the public hapi server URL: http://hapi.fhir.org/baseR4
+  - Using the instructions here: https://hapifhir.io/hapi-fhir/docs/client/generic_client.html
+  - Use the public hapi server URL: http://hapi.fhir.org/baseR4
 
-* For each row, create the Patient resource. Use an Update (PUT) operation so that you can control the ID of the patient resource. For example, you might want *Marge Simpson* to have a resource ID of "Patient/PT00002"
+- For each row, create the Patient resource. Use an Update (PUT) operation so that you can control the ID of the patient resource. For example, you might want _Marge Simpson_ to have a resource ID of "Patient/PT00002"
 
-* For each row, create 3 Observation resources, one for each of the 3 tests.
+- For each row, create 3 Observation resources, one for each of the 3 tests.
 
-* validate the resources against the server with your client
+- validate the resources against the server with your client
 
-* validate the resource using the hapi validation stack: https://hapifhir.io/hapi-fhir/docs/client/generic_client.html#extended-operations (4.2.11Extended Operations)
+- validate the resource using the hapi validation stack: https://hapifhir.io/hapi-fhir/docs/client/generic_client.html#extended-operations (4.2.11Extended Operations)
 
 # Testing Your Solution
 
@@ -84,8 +86,8 @@ This server does not implement the complete FHIR specification, just a very smal
 
 The following things will work:
 
-* Creating Patient and Observation resources: `POST /Patient` and `POST /Observation`
-* Updating Patient and Observation resources: `PUT /Patient/[id]` and `PUT /Observation/[id]`
-* Searching for all Patient resources: http://localhost:8000/Patient
-* Searching for all Observation resources: http://localhost:8000/Observation
-* Searching for Observation resources by Subject: http://localhost:8000/Observation?subject=Patient/PT00002
+- Creating Patient and Observation resources: `POST /Patient` and `POST /Observation`
+- Updating Patient and Observation resources: `PUT /Patient/[id]` and `PUT /Observation/[id]`
+- Searching for all Patient resources: http://localhost:8000/Patient
+- Searching for all Observation resources: http://localhost:8000/Observation
+- Searching for Observation resources by Subject: http://localhost:8000/Observation?subject=Patient/PT00002

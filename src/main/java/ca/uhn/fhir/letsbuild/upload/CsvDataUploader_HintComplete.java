@@ -1,3 +1,9 @@
+// Código completo, ejecutado contra mi servidor jpa fhir server local. 
+// Para arrancar el servidor, previamente abrir docker, y ejecutar desde línea de comandos:
+// cd /Users/fnovillo/Projects/solutions/hapi-fhir-jpaserver-starter
+// docker pull hapiproject/hapi:latest
+// docker run -p 8080:8080 hapiproject/hapi:latest
+
 package ca.uhn.fhir.letsbuild.upload;
 
 import ca.uhn.fhir.context.FhirContext;
@@ -34,7 +40,11 @@ public class CsvDataUploader_HintComplete {
 
 		// Create a FHIR client
 		FhirContext ctx = FhirContext.forR4();
-		IGenericClient client = ctx.newRestfulGenericClient("http://localhost:8000/");
+		// Servidor local (levantar con docker)
+		// IGenericClient client =
+		// ctx.newRestfulGenericClient("http://localhost:8080/fhir/");
+		// Servidor HAPI
+		IGenericClient client = ctx.newRestfulGenericClient("http://hapi.fhir.org/baseR4");
 		client.registerInterceptor(new LoggingInterceptor(false));
 
 		// Open the CSV file for reading
@@ -42,8 +52,8 @@ public class CsvDataUploader_HintComplete {
 			Reader reader = new InputStreamReader(inputStream, Charsets.UTF_8);
 
 			CSVFormat format = CSVFormat.EXCEL
-				.withFirstRecordAsHeader()
-				.withDelimiter(',');
+					.withFirstRecordAsHeader()
+					.withDelimiter(',');
 			CSVParser csvParser = format.parse(reader);
 
 			// Loop throw each row in the CSV file
@@ -88,10 +98,10 @@ public class CsvDataUploader_HintComplete {
 				Patient patientRead = client.read().resource(Patient.class).withId(patientId).execute();
 
 				// White blood cell count - This corresponds to LOINC code:
-				// Code:        6690-2
-				// Display:     Leukocytes [#/volume] in Blood by Automated count
+				// Code: 6690-2
+				// Display: Leukocytes [#/volume] in Blood by Automated count
 				// Unit System: http://unitsofmeasure.org
-				// Unit Code:   10*3/uL
+				// Unit Code: 10*3/uL
 				String rbc = nextRecord.get("RBC");
 
 				// Create the RBC Observation
@@ -100,15 +110,15 @@ public class CsvDataUploader_HintComplete {
 				rbcObservation.setStatus(Observation.ObservationStatus.FINAL);
 				rbcObservation.setEffective(new DateTimeType(timestamp));
 				Coding rbcCode = new Coding()
-					.setSystem("http://loinc.org")
-					.setCode("6690-2")
-					.setDisplay("Leukocytes [#/volume] in Blood by Automated count");
+						.setSystem("http://loinc.org")
+						.setCode("6690-2")
+						.setDisplay("Leukocytes [#/volume] in Blood by Automated count");
 				rbcObservation.getCode().addCoding(rbcCode);
 				Quantity rbcValue = new SimpleQuantity()
-					.setSystem("http://unitsofmeasure.org")
-					.setUnit("10*3/uL")
-					.setCode("10*3/uL")
-					.setValue(new BigDecimal(rbc));
+						.setSystem("http://unitsofmeasure.org")
+						.setUnit("10*3/uL")
+						.setCode("10*3/uL")
+						.setValue(new BigDecimal(rbc));
 				rbcObservation.setValue(rbcValue);
 				rbcObservation.setSubject(new Reference("Patient/" + patientId));
 
@@ -116,10 +126,10 @@ public class CsvDataUploader_HintComplete {
 				client.update().resource(rbcObservation).execute();
 
 				// White blood cell count - This corresponds to LOINC code:
-				// Code:        789-8
-				// Display:     Erythrocytes [#/volume] in Blood by Automated count
+				// Code: 789-8
+				// Display: Erythrocytes [#/volume] in Blood by Automated count
 				// Unit System: http://unitsofmeasure.org
-				// Unit Code:   10*6/uL
+				// Unit Code: 10*6/uL
 				String wbc = nextRecord.get("WBC");
 
 				// Create the WBC Observation
@@ -128,15 +138,15 @@ public class CsvDataUploader_HintComplete {
 				wbcObservation.setStatus(Observation.ObservationStatus.FINAL);
 				wbcObservation.setEffective(new DateTimeType(timestamp));
 				Coding wbcCode = new Coding()
-					.setSystem("http://loinc.org")
-					.setCode("789-8")
-					.setDisplay("Erythrocytes [#/volume] in Blood by Automated count");
+						.setSystem("http://loinc.org")
+						.setCode("789-8")
+						.setDisplay("Erythrocytes [#/volume] in Blood by Automated count");
 				wbcObservation.getCode().addCoding(wbcCode);
 				Quantity wbcValue = new SimpleQuantity()
-					.setSystem("http://unitsofmeasure.org")
-					.setUnit("10*6/uL")
-					.setCode("10*6/uL")
-					.setValue(new BigDecimal(wbc));
+						.setSystem("http://unitsofmeasure.org")
+						.setUnit("10*6/uL")
+						.setCode("10*6/uL")
+						.setValue(new BigDecimal(wbc));
 				wbcObservation.setValue(wbcValue);
 				wbcObservation.setSubject(new Reference("Patient/" + patientId));
 
@@ -144,10 +154,10 @@ public class CsvDataUploader_HintComplete {
 				client.update().resource(wbcObservation).execute();
 
 				// Hemoglobin
-				// Code:        718-7
-				// Display:     Hemoglobin [Mass/volume] in Blood
+				// Code: 718-7
+				// Display: Hemoglobin [Mass/volume] in Blood
 				// Unit System: http://unitsofmeasure.org
-				// Unit Code:   g/dL
+				// Unit Code: g/dL
 				String hb = nextRecord.get("HB");
 
 				// Create the HB Observation
@@ -156,15 +166,15 @@ public class CsvDataUploader_HintComplete {
 				hbObservation.setStatus(Observation.ObservationStatus.FINAL);
 				hbObservation.setEffective(new DateTimeType(timestamp));
 				Coding hbCode = new Coding()
-					.setSystem("http://loinc.org")
-					.setCode("718-7")
-					.setDisplay("Hemoglobin [Mass/volume] in Blood");
+						.setSystem("http://loinc.org")
+						.setCode("718-7")
+						.setDisplay("Hemoglobin [Mass/volume] in Blood");
 				hbObservation.getCode().addCoding(hbCode);
 				Quantity hbValue = new SimpleQuantity()
-					.setSystem("http://unitsofmeasure.org")
-					.setUnit("g/dL")
-					.setCode("g/dL")
-					.setValue(new BigDecimal(hb));
+						.setSystem("http://unitsofmeasure.org")
+						.setUnit("g/dL")
+						.setCode("g/dL")
+						.setValue(new BigDecimal(hb));
 				hbObservation.setValue(hbValue);
 				hbObservation.setSubject(new Reference("Patient/" + patientId));
 
