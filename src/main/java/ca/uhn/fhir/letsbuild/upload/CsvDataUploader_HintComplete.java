@@ -1,5 +1,5 @@
-// Código completo, ejecutado contra mi servidor jpa fhir server local. 
-// Para arrancar el servidor, previamente abrir docker, y ejecutar desde línea de comandos:
+// Código completo, ejecutado contra mi servidor jpa fhir server local o el de HAPI. 
+// Para arrancar el servidor local, previamente abrir docker, y ejecutar desde línea de comandos:
 // cd /Users/fnovillo/Projects/solutions/hapi-fhir-jpaserver-starter
 // docker pull hapiproject/hapi:latest
 // docker run -p 8080:8080 hapiproject/hapi:latest
